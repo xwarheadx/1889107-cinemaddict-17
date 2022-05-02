@@ -1,7 +1,7 @@
 # Проект «Киноман»
 
 * Студент: [Сергей Постников](https://up.htmlacademy.ru/ecmascript/17/user/1889107).
-* Наставник: `Александр Григорьев (https://htmlacademy.ru/profile/id43108)`.
+* Наставник: [Александр Григорьев](https://htmlacademy.ru/profile/id43108).
 
 ---
 
