@@ -1,10 +1,10 @@
-import ProfileView from './view/profile-view.js';
+import {render} from './render.js';
+import FilmsPresenter from './presenter/films-presenter.js';
+import FilmDetailsView from './view/film-details-view.js';
 import MainNavigationView from './view/main-navigation-view.js';
+import ProfileView from './view/profile-view.js';
 import SortView from './view/sort-view.js';
 import StatisticsView from './view/statistics-view.js';
-import FilmDetailsView from './view/film-details-view.js';
-import FilmsPresenter from './presenter/films-presenter.js';
-import {render} from './render.js';
 
 const siteBodyElement = document.querySelector('body');
 const siteMainElement = siteBodyElement.querySelector('.main');
