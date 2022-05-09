@@ -5,11 +5,6 @@ const getDateForPopup = (date) => dayjs(date).format('DD MMMM YYYY');
 
 const getValidRuntime = (runtime) => runtime > 60 ? `${Math.floor(runtime/60)} h ${runtime%60} m` : `${runtime} m`;
 
-const isActive = (active) =>
-  active
-    ? 'film-details__control-button--active'
-    :'';
-
 const getCommentTemplate = (comment) => `<li class="film-details__comment">
     <span class="film-details__comment-emoji">
       <img src="${comment.emotion}" width="55" height="55" alt="emoji-${comment.emotion}">
@@ -26,6 +21,10 @@ const getCommentTemplate = (comment) => `<li class="film-details__comment">
 
 
 const createFilmDetailsTemplate = (film) => {
+  const isActive = (active) =>
+    active
+      ? 'film-details__control-button--active'
+      :'';
   const comments = film['comments'];
   const commentsTemplate = comments
     .map((comment) => getCommentTemplate(comment))
@@ -134,7 +133,7 @@ export default class FilmDetailsView {
   }
 
   getTemplate() {
-    return createFilmDetailsTemplate(this.film,this.comments);
+    return createFilmDetailsTemplate(this.film);
   }
 
   getElement() {
