@@ -1,4 +1,4 @@
-import {FILM_COUNT} from '../consts.js';
+import { FILM_COUNT_PER_STEP } from '../consts.js';
 import {render} from '../render.js';
 import FilmCardView from '../view/film-card-view.js';
 import FilmsListСontainerView from '../view/films-list-container-view.js';
@@ -11,15 +11,17 @@ export default class FilmsPresenter {
   filmsListComponent = new FilmsListView();
   filmsСontainerComponent = new FilmsListСontainerView();
 
-  init = (filmsContainer) => {
+  init = (filmsContainer, filmsModel) => {
     this.filmsContainer = filmsContainer;
+    this.filmsModel = filmsModel;
+    this.listFilms = [...this.filmsModel.getFilms()];
 
     render(this.filmsComponent, this.filmsContainer);
     render(this.filmsListComponent, this.filmsComponent.getElement());
     render(this.filmsСontainerComponent, this.filmsListComponent.getElement());
 
-    for (let i = 0; i < FILM_COUNT; i++) {
-      render(new FilmCardView(), this.filmsСontainerComponent.getElement());
+    for (let i = 0; i < FILM_COUNT_PER_STEP; i++) {
+      render(new FilmCardView(this.listFilms[i]), this.filmsСontainerComponent.getElement());
     }
 
     render(new ShowMoreButtonView(), this.filmsListComponent.getElement());
