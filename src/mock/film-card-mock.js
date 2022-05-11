@@ -1,6 +1,13 @@
 import {getRandomInteger} from '../utils';
 import {generateComment} from './comment-mock';
 
+const RELEASE_YEAR_START = 1931;
+const REALESE_YEAR_END = 2021;
+const MIN_RUNTIME = 10;
+const MAX_RUNTIME = 180;
+const WHATCHING_DATE_MIN = 2005;
+const WHATCHING_DATE_MAX = 2022;
+
 const DESCRIPTIONS = [
   'Lorem ipsum dolor sit amet, conctetur adipiscing elit.',
   'Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra.',
@@ -10,6 +17,7 @@ const DESCRIPTIONS = [
   'Aliquam erat volutpat.',
   'Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.'
 ];
+
 const MOVIE_TITLES = [
   'The Dance of Life',
   'Sagebrush Trail',
@@ -17,6 +25,7 @@ const MOVIE_TITLES = [
   'Santa Claus Conquers the Martians',
   'Popeye the Sailor Meets Sindbad the Sailor'
 ];
+
 const GENRES = [
   'Action',
   'Drama',
@@ -27,6 +36,7 @@ const GENRES = [
   'Musical',
   'Western',
 ];
+
 const POSTERS = [
   './images/posters/made-for-each-other.png',
   './images/posters/popeye-meets-sinbad.png',
@@ -36,12 +46,15 @@ const POSTERS = [
   './images/posters/the-great-flamarion.jpg',
   './images/posters/the-man-with-the-golden-arm.jpg',
 ];
+
 const AGE_RATING = [
   '0',
   '6',
   '12',
   '16',
-  '18'];
+  '18'
+];
+
 const COUNTRIES = [
   'United States',
   'China',
@@ -49,7 +62,9 @@ const COUNTRIES = [
   'France',
   'Canada',
   'Germany',
-  'United Kingdom'];
+  'United Kingdom'
+];
+
 const DIRECTORS = [
   'Alfred Hitchcock',
   'Anthony Mann',
@@ -60,6 +75,7 @@ const DIRECTORS = [
   'Martin Scorsese',
   'Francis Ford Coppola'
 ];
+
 const WRITERS = [
   'Anne Wigton',
   'Heinz Herald',
@@ -70,6 +86,7 @@ const WRITERS = [
   'Michael Mann',
   'Art Linson'
 ];
+
 const ACTORS = [
   'Al Pacino',
   'Robert De Niro',
@@ -84,6 +101,8 @@ const ACTORS = [
   'Kirsten Dunst',
   'Patrick Wilson'
 ];
+
+const  getRandomBoolean = () => Boolean(getRandomInteger(0, 1));
 
 const getRandomArray = (list) => {
   const elements = [];
@@ -109,17 +128,17 @@ export const generateFilm = () => ({
     'writers': getRandomArray(WRITERS),
     'actors': getRandomArray(ACTORS),
     'release': {
-      'date': `${getRandomInteger(1931,2020)}-05-11T00:00:00.000Z`,
+      'date': `${getRandomInteger(RELEASE_YEAR_START, REALESE_YEAR_END)}-05-11T00:00:00.000Z`,
       'release_country': getRandomArray(COUNTRIES)
     },
-    'runtime': getRandomInteger(10,190),
+    'runtime': getRandomInteger(MIN_RUNTIME, MAX_RUNTIME),
     'genre': getRandomArray(GENRES),
     'description': DESCRIPTIONS[getRandomInteger(0, DESCRIPTIONS.length-1)],
   },
   'user_details': {
-    'watchlist': Boolean(getRandomInteger(0, 1)),
-    'already_watched': Boolean(getRandomInteger(0, 1)),
-    'watching_date': `${getRandomInteger(2005,2022)}-${getRandomInteger(1,31)}-12T16:12:32.554Z`,
-    'favorite': Boolean(getRandomInteger(0, 1)),
+    'watchlist': getRandomBoolean(),
+    'already_watched': getRandomBoolean(),
+    'watching_date': `${getRandomInteger(WHATCHING_DATE_MIN, WHATCHING_DATE_MAX)}-${getRandomInteger(1,31)}-12T16:12:32.554Z`,
+    'favorite': getRandomBoolean(),
   }
 });
