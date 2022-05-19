@@ -1,5 +1,5 @@
 import {FILM_COUNT_PER_STEP} from '../consts.js';
-import {render} from '../render.js';
+import {render, remove} from '../framework/render.js';
 import FilmCardView from '../view/film-card-view.js';
 import FilmDetailsView from '../view/film-details-view.js';
 import FilmsListСontainerView from '../view/films-list-container-view.js';
@@ -25,8 +25,7 @@ export default class FilmsPresenter {
   #renderFilm = (film) => {
     const filmCardComponent = new FilmCardView(film);
 
-    filmCardComponent.element.addEventListener('click', (evt) => {
-      evt.stopPropagation();
+    filmCardComponent.setOpenClickHandler(() => {
       if (this.#filmDetailsComponent) {
         this.#closePopup();
       } else {
@@ -38,16 +37,15 @@ export default class FilmsPresenter {
 
   #openPopup = (film) => {
     this.#filmDetailsComponent = new FilmDetailsView(film);
-    this.#filmDetailsComponent.closeButton.addEventListener('click', this.#closePopup);
+    this.#filmDetailsComponent.setCloseClickHandler(this.#closePopup);
     document.addEventListener('keydown', this.#onEscKeyDown);
     render(this.#filmDetailsComponent, document.body);
     document.body.classList.add('hide-overflow');
   };
 
   #closePopup = () => {
-    this.#filmDetailsComponent.element.remove();
-    this.#filmDetailsComponent.removeElement();
-    this.#filmDetailsComponent.closeButton.removeEventListener('click', this.#closePopup);
+    remove(this.#filmDetailsComponent);
+    this.#filmDetailsComponent.removeCloseClickHandler(this.#closePopup);
     document.removeEventListener('keydown', this.#onEscKeyDown);
     document.body.classList.remove('hide-overflow');
     this.#filmDetailsComponent = null;
@@ -60,8 +58,7 @@ export default class FilmsPresenter {
     }
   };
 
-  #handleShowMoreButtonClick = (evt) => {
-    evt.preventDefault();
+  #handleShowMoreButtonClick = () => {
     this.#listFilms
       .slice(this.#renderedFilms, this.#renderedFilms + FILM_COUNT_PER_STEP)
       .forEach((film) => this.#renderFilm(film));
@@ -69,8 +66,7 @@ export default class FilmsPresenter {
     this.#renderedFilms += FILM_COUNT_PER_STEP;
 
     if (this.#renderedFilms >= this.#listFilms.length) {
-      this.#showMoreButtonComponent.element.remove();
-      this.#showMoreButtonComponent.removeElement();
+      remove(this.#showMoreButtonComponent);
     }
   };
 
@@ -91,7 +87,7 @@ export default class FilmsPresenter {
       if (this.#listFilms.length > FILM_COUNT_PER_STEP) {
         render(this.#showMoreButtonComponent, this.#filmsListComponent.element);
 
-        this.#showMoreButtonComponent.element.addEventListener('click', this.#handleShowMoreButtonClick);
+        this.#showMoreButtonComponent.setClickHandler(this.#handleShowMoreButtonClick);
       }
     }
   };
