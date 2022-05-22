@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {createElement} from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createFilmCardTemplate = (film) => (`<article class="film-card">
   <a class="film-card__link">
@@ -21,11 +21,11 @@ const createFilmCardTemplate = (film) => (`<article class="film-card">
   </div>
 </article>`);
 
-export default class FilmCardView {
-  #element = null;
+export default class FilmCardView extends AbstractView {
   #film = null;
 
   constructor (film) {
+    super();
     this.#film = film;
   }
 
@@ -33,15 +33,13 @@ export default class FilmCardView {
     return createFilmCardTemplate(this.#film);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setOpenClickHandler = (callback) => {
+    this._callback.openClick = callback;
+    this.element.addEventListener('click', this.#openClickHandler);
+  };
 
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
-  }
+  #openClickHandler = (evt) => {
+    evt.stopPropagation();
+    this._callback.openClick();
+  };
 }

@@ -1,4 +1,4 @@
-import {render} from './render.js';
+import {render} from './framework/render.js';
 import FilmsModel from './model/films-model.js';
 import FilmsPresenter from './presenter/films-presenter.js';
 import MainNavigationView from './view/main-navigation-view.js';
