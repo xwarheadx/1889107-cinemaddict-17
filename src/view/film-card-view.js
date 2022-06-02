@@ -15,9 +15,9 @@ const createFilmCardTemplate = (film) => (`<article class="film-card">
       <span class="film-card__comments">${film.comments.length} comments</span>
   </a>
   <div class="film-card__controls">
-    <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${film.user_details.watchlist ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
-    <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${film.user_details.already_watched ? 'film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
-    <button class="film-card__controls-item film-card__controls-item--favorite ${film.user_details.favorite ? 'film-card__controls-item--active' : ''}" type="button">Mark as favorite</button>
+  <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${film.userDetails.watchlist ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
+    <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${film.userDetails.alreadyWatched ? 'film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
+    <button class="film-card__controls-item film-card__controls-item--favorite ${film.userDetails.favorite ? 'film-card__controls-item--active' : ''}" type="button">Mark as favorite</button>
   </div>
 </article>`);
 
@@ -35,11 +35,37 @@ export default class FilmCardView extends AbstractView {
 
   setOpenClickHandler = (callback) => {
     this._callback.openClick = callback;
-    this.element.addEventListener('click', this.#openClickHandler);
+    this.element.querySelector('.film-card__link').addEventListener('click', this.#openClickHandler);
   };
 
-  #openClickHandler = (evt) => {
-    evt.stopPropagation();
+  setWatchlistClickHandler = (callback) => {
+    this._callback.watchlistClick = callback;
+    this.element.querySelector('.film-card__controls-item--add-to-watchlist').addEventListener('click', this.#watchlistClickHandler);
+  };
+
+  setWatchedClickHandler = (callback) => {
+    this._callback.watchedClick = callback;
+    this.element.querySelector('.film-card__controls-item--mark-as-watched').addEventListener('click', this.#watchedClickHandler);
+  };
+
+  setFavoriteClickHandler = (callback) => {
+    this._callback.favoriteClick = callback;
+    this.element.querySelector('.film-card__controls-item--favorite').addEventListener('click', this.#favoriteClickHandler);
+  };
+
+  #openClickHandler = () => {
     this._callback.openClick();
+  };
+
+  #watchlistClickHandler = () => {
+    this._callback.watchlistClick();
+  };
+
+  #watchedClickHandler = () => {
+    this._callback.watchedClick();
+  };
+
+  #favoriteClickHandler = () => {
+    this._callback.favoriteClick();
   };
 }
