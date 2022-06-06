@@ -86,21 +86,18 @@ export default class MainPresenter
     if (this.#filmDetailsComponent) {
       this.#closePopup();
     }
-
     this.#filmDetailsComponent = new FilmDetailsView(film);
     this.#filmDetailsComponent.setCloseClickHandler(this.#closePopup);
     this.#filmDetailsComponent.setWatchlistPopupClickHandler(this.#watchlistPopupClickHandler);
     this.#filmDetailsComponent.setWatchedPopupClickHandler(this.#watchedPopupClickHandler);
     this.#filmDetailsComponent.setFavoritePopupClickHandler(this.#favoritePopupClickHandler);
     render(this.#filmDetailsComponent, document.body);
-
     document.addEventListener('keydown', this.#onEscKeyDown);
     document.body.classList.add('hide-overflow');
   };
 
   #closePopup = () => {
     remove(this.#filmDetailsComponent);
-
     document.removeEventListener('keydown', this.#onEscKeyDown);
     document.body.classList.remove('hide-overflow');
     this.#filmDetailsComponent = null;

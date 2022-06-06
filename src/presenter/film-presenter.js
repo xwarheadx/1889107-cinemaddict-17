@@ -25,7 +25,6 @@ export default class FilmPresenter {
     this.#filmComponent.setOpenClickHandler(() => {
       this.#openPopup(film);
     });
-
     this.#filmComponent.setWatchlistClickHandler(this.#handleWatchlistClick);
     this.#filmComponent.setWatchedClickHandler(this.#handleWatchedClick);
     this.#filmComponent.setFavoriteClickHandler(this.#handleFavoriteClick);
