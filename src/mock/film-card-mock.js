@@ -1,5 +1,6 @@
 import {getRandomInteger} from '../utils';
 import {generateComment} from './comment-mock';
+import {nanoid} from 'nanoid';
 
 const RELEASE_YEAR_START = 1931;
 const REALESE_YEAR_END = 2021;
@@ -116,7 +117,7 @@ const getRandomArray = (list) => {
 };
 
 export const generateFilm = () => ({
-  'id': getRandomInteger(0,9999),
+  'id': nanoid(),
   'comments': Array.from({length: getRandomInteger(1,10)}, generateComment),
   'film_info': {
     'title': MOVIE_TITLES[getRandomInteger(0, MOVIE_TITLES.length-1)],
@@ -135,9 +136,9 @@ export const generateFilm = () => ({
     'genre': getRandomArray(GENRES),
     'description': DESCRIPTIONS[getRandomInteger(0, DESCRIPTIONS.length-1)],
   },
-  'user_details': {
+  'userDetails': {
     'watchlist': getRandomBoolean(),
-    'already_watched': getRandomBoolean(),
+    'alreadyWatched': getRandomBoolean(),
     'watching_date': `${getRandomInteger(WHATCHING_DATE_MIN, WHATCHING_DATE_MAX)}-${getRandomInteger(1,31)}-12T16:12:32.554Z`,
     'favorite': getRandomBoolean(),
   }

@@ -21,6 +21,7 @@ const getCommentTemplate = (comment) => `<li class="film-details__comment">
 
 
 const createFilmDetailsTemplate = (film) => {
+
   const isActive = (active) =>
     active
       ? 'film-details__control-button--active'
@@ -86,9 +87,9 @@ const createFilmDetailsTemplate = (film) => {
       </div>
     </div>
     <section class="film-details__controls">
-      <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActive(film.user_details.watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
-      <button type="button" class="film-details__control-button film-details__control-button--watched ${isActive(film.user_details.favorite)}" id="watched" name="watched">Already watched</button>
-      <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActive(film.user_details.already_watched)}" id="favorite" name="favorite">Add to favorites</button>
+    <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActive(film.userDetails.watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
+    <button type="button" class="film-details__control-button film-details__control-button--watched ${isActive(film.userDetails.alreadyWatched)}" id="watched" name="watched">Already watched</button>
+    <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActive(film.userDetails.favorite)}" id="favorite" name="favorite">Add to favorites</button>
     </section>
   </div>
   <div class="film-details__bottom-container">
@@ -139,21 +140,39 @@ export default class FilmDetailsView extends AbstractView {
     return createFilmDetailsTemplate(this.#film);
   }
 
-  get closeButton() {
-    return this.element.querySelector('.film-details__close-btn');
-  }
-
   setCloseClickHandler = (callback) => {
     this._callback.closeClick = callback;
-    this.closeButton.addEventListener('click', this.#closeClickHandler);
+    this.element.querySelector('.film-details__close-btn').addEventListener('click', this.#closeClickHandler);
   };
 
-  removeCloseClickHandler = (callback) => {
-    this._callback.closeClick = callback;
-    this.closeButton.removeEventListener('click', this.#closeClickHandler);
+  setWatchlistPopupClickHandler = (callback) => {
+    this._callback.watchlistPopupClick = callback;
+    this.element.querySelector('.film-details__control-button--watchlist').addEventListener('click', this.#watchlistPopupClickHandler);
+  };
+
+  setWatchedPopupClickHandler = (callback) => {
+    this._callback.watchedPopupClick = callback;
+    this.element.querySelector('.film-details__control-button--watched').addEventListener('click', this.#watchedPopupClickHandler);
+  };
+
+  setFavoritePopupClickHandler = (callback) => {
+    this._callback.favoritePopupClick = callback;
+    this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoritePopupClickHandler);
   };
 
   #closeClickHandler = () => {
     this._callback.closeClick();
+  };
+
+  #watchlistPopupClickHandler = () => {
+    this._callback.watchlistPopupClick();
+  };
+
+  #watchedPopupClickHandler = () => {
+    this._callback.watchedPopupClick();
+  };
+
+  #favoritePopupClickHandler = () => {
+    this._callback.favoritePopupClick();
   };
 }
