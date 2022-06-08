@@ -1,5 +1,5 @@
-import {FILM_COUNT_PER_STEP} from '../consts.js';
-import {updateItem} from '../utils.js';
+import {FILM_COUNT_PER_STEP, SortType} from '../consts.js';
+import {updateItem, sortFilmByDate, sortFilmByRating} from '../utils.js';
 import {render, remove, RenderPosition} from '../framework/render.js';
 import FilmPresenter from './film-presenter.js';
 import FilmDetailsView from '../view/film-details-view.js';
@@ -28,6 +28,9 @@ export default class MainPresenter
   #filmPresenter = new Map();
   #film = null;
 
+  #currentSortType = SortType.DEFAULT;
+  #sourcedListFilms = [];
+
   constructor(filmsContainer, filmsModel) {
     this.#filmsContainer = filmsContainer;
     this.#filmsModel = filmsModel;
@@ -35,7 +38,7 @@ export default class MainPresenter
 
   init = () => {
     this.#listFilms = [...this.#filmsModel.films];
-
+    this.#sourcedListFilms = [...this.#filmsModel.films];
     this.#renderFilmsComponent();
   };
 
@@ -51,11 +54,38 @@ export default class MainPresenter
 
   #handleFilmChange = (updatedFilm) => {
     this.#listFilms = updateItem(this.#listFilms, updatedFilm);
+    this.#sourcedListFilms = updateItem(this.#sourcedListFilms, updatedFilm);
     this.#filmPresenter.get(updatedFilm.id).init(updatedFilm);
+  };
+
+  #sortFilms = (sortType) => {
+    switch (sortType) {
+      case SortType.DATE:
+        this.#listFilms.sort(sortFilmByDate);
+        break;
+      case SortType.RATING:
+        this.#listFilms.sort(sortFilmByRating);
+        break;
+      default:
+        this.#listFilms = [...this.#sourcedListFilms];
+    }
+
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+    if (this.#currentSortType === sortType) {
+      return;
+    }
+
+    this.#sortFilms(sortType);
+    this.#clearFilmsList();
+    this.#renderFilmsList();
   };
 
   #renderSort = () => {
     render(this.#sortComponent, this.#filmsListComponent.element, RenderPosition.AFTERBEGIN);
+    this.#sortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
   };
 
   #renderFilm = (film) => {
