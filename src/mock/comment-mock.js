@@ -1,16 +1,11 @@
 import {getRandomInteger} from '../utils.js';
+import {EMOTIONS} from '../consts.js';
+import {nanoid} from 'nanoid';
 
 const COMMENT_YEAR_START = 2005;
 const COMMENT_YEAR_END = 2022;
 
-const EMOTIONS = [
-  './images/emoji/smile.png',
-  './images/emoji/sleeping.png',
-  './images/emoji/puke.png',
-  './images/emoji/angry.png'
-];
-
-const COMMENTS = [
+const COMMENTS_TEXT = [
   'Interesting setting and a good cast',
   'Booooooooooring',
   'Very very old. Meh',
@@ -24,12 +19,13 @@ const AUTHORS = [
   'Tim Macoveev'
 ];
 
-export const generateComment = () => (
+const generateComment = () => (
   {
-    'id': getRandomInteger(1, 30),
-    'author': AUTHORS[getRandomInteger(0, AUTHORS.length-1)],
-    'emotion': EMOTIONS[getRandomInteger(0, EMOTIONS.length-1)],
-    'comment': COMMENTS[getRandomInteger(0, COMMENTS.length-1)],
-    'date': `${getRandomInteger(COMMENT_YEAR_START, COMMENT_YEAR_END)}-05-12T16:12:32.554Z`,
+    id: nanoid(),
+    author: AUTHORS[getRandomInteger(0, AUTHORS.length-1)],
+    emotion: EMOTIONS[getRandomInteger(0, EMOTIONS.length-1)],
+    comment: COMMENTS_TEXT[getRandomInteger(0, COMMENTS_TEXT.length-1)],
+    date: `${getRandomInteger(COMMENT_YEAR_START, COMMENT_YEAR_END)}-05-12T16:12:32.554Z`,
   }
 );
+export const COMMENTS = Array.from({length: getRandomInteger(1,10)}, generateComment);

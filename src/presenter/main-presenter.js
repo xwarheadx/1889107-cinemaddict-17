@@ -1,6 +1,7 @@
 import {FILM_COUNT_PER_STEP, SortType} from '../consts.js';
 import {updateItem, sortFilmByDate, sortFilmByRating} from '../utils.js';
 import {render, remove, RenderPosition} from '../framework/render.js';
+import CommentsModel from '../model/comments-model.js';
 import FilmPresenter from './film-presenter.js';
 import FilmDetailsView from '../view/film-details-view.js';
 import FilmsListСontainerView from '../view/films-list-container-view.js';
@@ -29,6 +30,7 @@ export default class MainPresenter
   #film = null;
 
   #currentSortType = SortType.DEFAULT;
+  #commentsModel = new CommentsModel();
   #sourcedListFilms = [];
 
   constructor(filmsContainer, filmsModel) {
@@ -116,14 +118,17 @@ export default class MainPresenter
     if (this.#filmDetailsComponent) {
       this.#closePopup();
     }
+    this.#film.comments = this.#film.comments.map((_, id) => this.#commentsModel.comments[id]);
     this.#filmDetailsComponent = new FilmDetailsView(film);
     this.#filmDetailsComponent.setCloseClickHandler(this.#closePopup);
     this.#filmDetailsComponent.setWatchlistPopupClickHandler(this.#watchlistPopupClickHandler);
     this.#filmDetailsComponent.setWatchedPopupClickHandler(this.#watchedPopupClickHandler);
     this.#filmDetailsComponent.setFavoritePopupClickHandler(this.#favoritePopupClickHandler);
+    this.#filmDetailsComponent.setFormSubmitHandler(this.#handleFormSubmit);
     render(this.#filmDetailsComponent, document.body);
     document.addEventListener('keydown', this.#onEscKeyDown);
     document.body.classList.add('hide-overflow');
+    this.#film.comments = this.#film.comments.map((el) => el.id);
   };
 
   #closePopup = () => {
@@ -190,6 +195,12 @@ export default class MainPresenter
     const film = {...this.#film, userDetails: {...this.#film.userDetails, favorite: !this.#film.userDetails.favorite}};
     this.#listFilms = updateItem(this.#listFilms, film);
     this.#filmPresenter.get(film.id).init(film);
+    this.#openPopup(film);
+  };
+
+  #handleFormSubmit = (film, newComments) => {
+    this.#commentsModel.comments = newComments;
+    this.#film.comments.push(this.#film.comments.length + 1);
     this.#openPopup(film);
   };
 }

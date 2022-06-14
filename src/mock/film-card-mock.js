@@ -1,5 +1,5 @@
 import {getRandomInteger} from '../utils';
-import {generateComment} from './comment-mock';
+import {COMMENTS} from './comment-mock';
 import {nanoid} from 'nanoid';
 
 const RELEASE_YEAR_START = 1931;
@@ -118,7 +118,7 @@ const getRandomArray = (list) => {
 
 export const generateFilm = () => ({
   'id': nanoid(),
-  'comments': Array.from({length: getRandomInteger(1,10)}, generateComment),
+  comments: COMMENTS,
   'film_info': {
     'title': MOVIE_TITLES[getRandomInteger(0, MOVIE_TITLES.length-1)],
     'alternative_title': MOVIE_TITLES[getRandomInteger(0, MOVIE_TITLES.length-1)],
