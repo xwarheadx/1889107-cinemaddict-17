@@ -1,10 +1,13 @@
 import dayjs from 'dayjs';
+import duration from 'dayjs/plugin/duration';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import {nanoid} from 'nanoid';
+import he from 'he';
 import {EMOTIONS} from '../consts.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
-const getDateForPopup = (date) => dayjs(date).format('DD MMMM YYYY');
-
-const getValidRuntime = (runtime) => runtime > 60 ? `${Math.floor(runtime/60)} h ${runtime%60} m` : `${runtime} m`;
+dayjs.extend(duration);
+dayjs.extend(relativeTime);
 
 const getCommentTemplate = (comment) => `<li class="film-details__comment">
 <span class="film-details__comment-emoji">
@@ -14,8 +17,8 @@ ${comment.emotion ? `<img src="./images/emoji/${comment.emotion}.png" width="55"
       <p class="film-details__comment-text">${comment.comment}</p>
       <p class="film-details__comment-info">
         <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${dayjs(comment.date).format('YYYY/MM/DD HH:MM')}</span>
-        <button class="film-details__comment-delete">Delete</button>
+        <span class="film-details__comment-day">${dayjs(comment.date).fromNow()}</span>
+        <button class="film-details__comment-delete" data-button-delete="${comment.id}">Delete</button>
       </p>
     </div>
   </li>`;
@@ -75,11 +78,11 @@ const createFilmDetailsTemplate = (film) => {
           </tr>
           <tr class="film-details__row">
             <td class="film-details__term">Release Date</td>
-            <td class="film-details__cell">${getDateForPopup(film.film_info.release.date)}</td>
+            <td class="film-details__cell">${dayjs(film.film_info.release.date).format('DD MMMM YYYY')}</td>
           </tr>
           <tr class="film-details__row">
             <td class="film-details__term">Runtime</td>
-            <td class="film-details__cell">${getValidRuntime(film.film_info.runtime)}</td>
+            <td class="film-details__cell">${dayjs.duration(film.film_info.runtime, 'minutes').format('H[h] m[m]')}</td>
           </tr>
           <tr class="film-details__row">
             <td class="film-details__term">Country</td>
@@ -134,7 +137,16 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
   setFormSubmitHandler = (callback) => {
     this._callback.formSubmit = callback;
-    document.addEventListener('keydown', this.#formSubmitHandler);
+    this.element.addEventListener('keydown', this.#formSubmitHandler);
+  };
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+
+    const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', this.#commentDeleteClickHandler);
+    });
   };
 
   setCloseClickHandler = (callback) => {
@@ -180,6 +192,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this.setWatchedPopupClickHandler(this._callback.watchedPopupClick);
     this.setFavoritePopupClickHandler(this._callback.favoritePopupClick);
     this.setFormSubmitHandler(this._callback.formSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   };
 
   #emotionChangeHandler = (evt) => {
@@ -198,8 +211,15 @@ export default class FilmDetailsView extends AbstractStatefulView {
   };
 
   #formSubmitHandler = (evt) => {
-    if (evt.key === 'Enter') {
-      this._callback.formSubmit(FilmDetailsView.parseStateToFilm(this._state), this._state.comments);}
+    if (evt.ctrlKey && evt.key === 'Enter') {
+      this._callback.formSubmit(FilmDetailsView.parseStateToFilm(this._state), FilmDetailsView.newComment(this._state));
+    }
+  };
+
+  #commentDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    const idDelete = evt.target.dataset.buttonDelete;
+    this._callback.deleteClick(FilmDetailsView.parseStateToFilm(this._state), this._state.comments, idDelete);
   };
 
   #setInnerHandlers = () => {
@@ -215,16 +235,8 @@ export default class FilmDetailsView extends AbstractStatefulView {
   );
 
   static parseStateToFilm = (state) => {
-    state.comments.push({
-      id: state.comments.length + 1,
-      author: 'Username',
-      comment: state.commentText,
-      date: dayjs().format('YYYY/MM/DD HH:MM'),
-      emotion: state.commentEmotion,
-    });
-
-    const film = {...state,
-      comments: state.comments
+    const film = {
+      ...state
     };
 
     delete film.commentText;
@@ -233,8 +245,11 @@ export default class FilmDetailsView extends AbstractStatefulView {
     return film;
   };
 
-  static parseNewComments = (state) => {
-    const newComments = state.comments;
-    return newComments;
-  };
+  static newComment = (state) => ({
+    id: nanoid(),
+    author: 'Username',
+    comment: he.encode(state.commentText),
+    date: dayjs().format('YYYY/MM/DD HH:mm'),
+    emotion: state.commentEmotion,
+  });
 }

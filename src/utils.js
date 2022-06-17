@@ -1,4 +1,4 @@
-import {FilterType} from '../src/consts';
+import {FilterType, MAX_DESCRIPTION_LENGTH, MIN_DESCRIPTION_LENGTH, DESCRIPTION_SLICE_LENGTH} from '../src/consts';
 import dayjs from 'dayjs';
 
 export const getRandomInteger = (a = 0, b = 1) => {
@@ -9,6 +9,7 @@ export const getRandomInteger = (a = 0, b = 1) => {
 };
 
 const filter = {
+  [FilterType.ALL]: (films) => films,
   [FilterType.WATCHLIST]: (films) => films.filter((film) => film['userDetails']['watchlist']),
   [FilterType.HISTORY]: (films) => films.filter((film) => film['userDetails']['alreadyWatched']),
   [FilterType.FAVORITES]: (films) => films.filter((film) => film['userDetails']['favorite']),
@@ -16,19 +17,6 @@ const filter = {
 
 export {filter};
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
-  if (index === -1) {
-    return items;
-  }
-
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1),
-  ];
-};
 
 const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
@@ -73,3 +61,5 @@ export const sortFilmByRating = (filmA, filmB) => {
 
   return weight ?? filmB['film_info']['total_rating'] - filmA['film_info']['total_rating'];
 };
+
+export const formatDescription = (description) => description.length > MAX_DESCRIPTION_LENGTH ? `${description.slice(MIN_DESCRIPTION_LENGTH, DESCRIPTION_SLICE_LENGTH)}...` : description;
