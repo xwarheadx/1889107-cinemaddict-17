@@ -1,7 +1,8 @@
-import {render, replace, remove} from '../framework/render.js';
-import MainNavigationView from '../view/main-navigation-view.js';
-import {filter} from '../utils.js';
 import {FilterType, UpdateType} from '../consts.js';
+import {selectedFilter} from '../utils.js';
+import {render, replace, remove, RenderPosition} from '../framework/render.js';
+import MainNavigationView from '../view/main-navigation-view.js';
+
 
 export default class FilterPresenter {
   #filterContainer = null;
@@ -19,7 +20,7 @@ export default class FilterPresenter {
     this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
-  get filters() {
+  get filteredFilms() {
     const films = this.#filmsModel.films;
 
     return [
@@ -32,33 +33,33 @@ export default class FilterPresenter {
       {
         type: FilterType.WATCHLIST,
         name: 'Watchlist',
-        count: filter[FilterType.WATCHLIST](films).length,
+        count: selectedFilter[FilterType.WATCHLIST](films).length,
         href: 'watchlist',
       },
       {
         type: FilterType.HISTORY,
         name: 'History',
-        count: filter[FilterType.HISTORY](films).length,
+        count: selectedFilter[FilterType.HISTORY](films).length,
         href: 'history',
       },
       {
         type: FilterType.FAVORITES,
         name: 'Favorites',
-        count: filter[FilterType.FAVORITES](films).length,
+        count: selectedFilter[FilterType.FAVORITES](films).length,
         href: 'favorites',
       },
     ];
   }
 
   init = () => {
-    const filters = this.filters;
+    const filteredFilms = this.filteredFilms;
     const prevFilterComponent = this.#filterComponent;
 
-    this.#filterComponent = new MainNavigationView(filters, this.#filterModel.filter);
+    this.#filterComponent = new MainNavigationView(filteredFilms, this.#filterModel.selectedFilter);
     this.#filterComponent.setFilterTypeChangeHandler(this.#handleFilterTypeChange);
 
     if (prevFilterComponent === null) {
-      render(this.#filterComponent, this.#filterContainer);
+      render(this.#filterComponent, this.#filterContainer, RenderPosition.AFTERBEGIN);
       return;
     }
 
@@ -71,10 +72,10 @@ export default class FilterPresenter {
   };
 
   #handleFilterTypeChange = (filterType) => {
-    if (this.#filterModel.filter === filterType) {
+    if (this.#filterModel.selectedFilter === filterType) {
       return;
     }
 
-    this.#filterModel.setFilter(UpdateType.MAJOR, filterType);
+    this.#filterModel.setSelectedFilter(UpdateType.MAJOR, filterType);
   };
 }

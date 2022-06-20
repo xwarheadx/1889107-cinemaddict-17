@@ -1,22 +1,12 @@
-import {FilterType, MAX_DESCRIPTION_LENGTH, MIN_DESCRIPTION_LENGTH, DESCRIPTION_SLICE_LENGTH} from '../src/consts';
+import {FilterType, MAX_DESCRIPTION_LENGTH, MIN_DESCRIPTION_LENGTH, DESCRIPTION_SLICE_LENGTH, profileRating} from '../src/consts';
 import dayjs from 'dayjs';
 
-export const getRandomInteger = (a = 0, b = 1) => {
-  const lower = Math.ceil(Math.min(a, b));
-  const upper = Math.floor(Math.max(a, b));
-
-  return Math.floor(lower + Math.random() * (upper - lower + 1));
-};
-
-const filter = {
+export const selectedFilter = {
   [FilterType.ALL]: (films) => films,
-  [FilterType.WATCHLIST]: (films) => films.filter((film) => film['userDetails']['watchlist']),
-  [FilterType.HISTORY]: (films) => films.filter((film) => film['userDetails']['alreadyWatched']),
-  [FilterType.FAVORITES]: (films) => films.filter((film) => film['userDetails']['favorite']),
+  [FilterType.WATCHLIST]: (films) => films.filter((film) => film.watchlist),
+  [FilterType.HISTORY]: (films) => films.filter((film) => film.watched),
+  [FilterType.FAVORITES]: (films) => films.filter((film) => film.favorite),
 };
-
-export {filter};
-
 
 const getWeightForNullDate = (dateA, dateB) => {
   if (dateA === null && dateB === null) {
@@ -61,5 +51,20 @@ export const sortFilmByRating = (filmA, filmB) => {
 
   return weight ?? filmB['film_info']['total_rating'] - filmA['film_info']['total_rating'];
 };
+export const sortFilmByComments = (filmA, filmB) => {
+  const weight = getWeightForNullDate(filmA['comments'].length, filmB['comments'].length);
 
+  return weight ?? filmB['comments'].length - filmA['comments'].length;
+};
 export const formatDescription = (description) => description.length > MAX_DESCRIPTION_LENGTH ? `${description.slice(MIN_DESCRIPTION_LENGTH, DESCRIPTION_SLICE_LENGTH)}...` : description;
+
+export const getProfileRating = (item) => {
+  if (item >= profileRating.MOVIE_BUFF) {
+    return 'Movie Buff';
+  } else if (item >= profileRating.FAN && item < profileRating.MOVIE_BUFF) {
+    return 'Fan';
+  } else if (item > 0 && item < profileRating.FAN) {
+    return 'Novice';
+  }
+  return '';
+};
