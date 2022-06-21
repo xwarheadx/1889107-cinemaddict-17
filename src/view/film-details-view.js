@@ -97,10 +97,10 @@ const createFilmDetailsTemplate = (film, comments) => {
           <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${film.commentText ? `${he.encode(film.commentText)}` : ''}</textarea>
         </label>
         <div class="film-details__emoji-list">
-          ${EMOTIONS.map((el) => (`<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${el}" value="${el}" ${isDisabled ? 'disabled' : ''}>
-              <label class="film-details__emoji-label" for="emoji-${el}">
-                <img src="./images/emoji/${el}.png" width="30" height="30" alt="emoji-${el}">
-              </label>`)).join('')}
+        ${EMOTIONS.map((el) => (`<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${el}" value="${el}" ${isDisabled ? 'disabled' : ''}>
+        <label class="film-details__emoji-label" for="emoji-${el}">
+          <img src="./images/emoji/${el}.png" width="30" height="30" alt="emoji-${el}">
+        </label>`)).join('')}
         </div>
     </div>
   </section>
@@ -216,6 +216,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this._setState({
       commentText: '',
       commentEmotion: '',
+      isDisabled: false
     });
     const newElement = this.element;
     parent.replaceChild(newElement, prevElement);
@@ -258,7 +259,8 @@ export default class FilmDetailsView extends AbstractStatefulView {
   };
 
   #commentAddSubmitHandler = (evt) => {
-    if ((evt.metaKey || evt.ctrlKey) && evt.key === 'Enter') {
+    if ((evt.metaKey || evt.ctrlKey) && evt.key === 'Enter' && this._state.commentEmotion && this._state.commentText) {
+      evt.preventDefault();
       this._scrollTop = this.element.scrollTop;
       this._setState({
         isDisabled: true,
@@ -272,7 +274,9 @@ export default class FilmDetailsView extends AbstractStatefulView {
     const idDelete = evt.target.dataset.buttonDelete;
     const target = evt.target;
     this._scrollTop = this.element.scrollTop;
-
+    this._setState({
+      isDisabled: true,
+    });
     this._callback.deleteClick(FilmDetailsView.parseStateToFilm(this._state), idDelete, target, this._comments);
   };
 
