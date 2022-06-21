@@ -1,45 +1,15 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import {nanoid} from 'nanoid';
 import he from 'he';
-import {EMOTIONS} from '../consts.js';
+import {EMOTIONS, SHAKE_CLASS_NAME, SHAKE_ANIMATION_TIMEOUT} from '../consts.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 dayjs.extend(duration);
 dayjs.extend(relativeTime);
 
-const getCommentTemplate = (comment) => `<li class="film-details__comment">
-<span class="film-details__comment-emoji">
-${comment.emotion ? `<img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-${comment.emotion}">` : ''}
-</span>
-    <div>
-      <p class="film-details__comment-text">${comment.comment}</p>
-      <p class="film-details__comment-info">
-        <span class="film-details__comment-author">${comment.author}</span>
-        <span class="film-details__comment-day">${dayjs(comment.date).fromNow()}</span>
-        <button class="film-details__comment-delete" data-button-delete="${comment.id}">Delete</button>
-      </p>
-    </div>
-  </li>`;
-
-const createEmotionsTemplate = () => EMOTIONS.map((el) => (
-  `<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${el}" value="${el}">
-      <label class="film-details__emoji-label" for="emoji-${el}">
-        <img src="./images/emoji/${el}.png" width="30" height="30" alt="emoji-${el}">
-      </label>`)).join('');
-
-const createFilmDetailsTemplate = (film) => {
-
-  const isActive = (active) =>
-    active
-      ? 'film-details__control-button--active'
-      :'';
-  const comments = film.comments;
-  const commentsTemplate = comments
-    .map((comment) => getCommentTemplate(comment))
-    .join('');
-  const emotionsTemplate = createEmotionsTemplate();
+const createFilmDetailsTemplate = (film, comments) => {
+  const {isDisabled} = film;
 
   return (
     `<section class="film-details">
@@ -98,24 +68,40 @@ const createFilmDetailsTemplate = (film) => {
       </div>
     </div>
     <section class="film-details__controls">
-    <button type="button" class="film-details__control-button film-details__control-button--watchlist ${isActive(film.userDetails.watchlist)}" id="watchlist" name="watchlist">Add to watchlist</button>
-    <button type="button" class="film-details__control-button film-details__control-button--watched ${isActive(film.userDetails.alreadyWatched)}" id="watched" name="watched">Already watched</button>
-    <button type="button" class="film-details__control-button film-details__control-button--favorite ${isActive(film.userDetails.favorite)}" id="favorite" name="favorite">Add to favorites</button>
-    </section>
+    <button type="button" class="film-details__control-button ${film.watchlist ? 'film-details__control-button--active' : ''} film-details__control-button--watchlist" id="watchlist" name="watchlist" ${isDisabled ? 'disabled' : ''}>Add to watchlist</button>
+    <button type="button" class="film-details__control-button ${film.watched ? 'film-details__control-button--active' : ''} film-details__control-button--watched" id="watched" name="watched" ${isDisabled ? 'disabled' : ''}>Already watched</button>
+    <button type="button" class="film-details__control-button ${film.favorite ? 'film-details__control-button--active' : ''} film-details__control-button--favorite" id="favorite" name="favorite" ${isDisabled ? 'disabled' : ''}>Add to favorites</button>
+  </section>
   </div>
   <div class="film-details__bottom-container">
     <section class="film-details__comments-wrap">
       <h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${film.comments.length}</span></h3>
-      <ul class="film-details__comments-list">${commentsTemplate}</ul>
-      <div class="film-details__new-comment">
-      <div class="film-details__add-emoji-label">${film.commentEmotion ? `<img src="./images/emoji/${film.commentEmotion}.png" width="55" height="55" alt="emoji">` : ''}
-      </div>
-      <label class="film-details__comment-label">
-        <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment">${film.commentText ? `${film.commentText}` : ''}</textarea>
-      </label>
-      <div class="film-details__emoji-list">
-        ${emotionsTemplate}
-      </div>
+      <ul class="film-details__comments-list">${comments.map((comment) => `<li class="film-details__comment">
+      <span class="film-details__comment-emoji">
+      ${comment.emotion ? `<img src="./images/emoji/${comment.emotion}.png" width="55" height="55" alt="emoji-${comment.emotion}">` : ''}
+      </span>
+          <div>
+            <p class="film-details__comment-text">${`${he.encode(comment.comment)}`}</p>
+            <p class="film-details__comment-info">
+              <span class="film-details__comment-author">${comment.author}</span>
+              <span class="film-details__comment-day">${dayjs(comment.date).fromNow()}</span>
+              <button class="film-details__comment-delete" data-button-delete="${comment.id}">Delete</button>
+            </p>
+          </div>
+        </li>`).join('')}
+        </ul>
+        <div class="film-details__new-comment">
+        <div class="film-details__add-emoji-label">${film.commentEmotion ? `<img src="./images/emoji/${film.commentEmotion}.png" width="55" height="55" alt="emoji">` : ''}
+        </div>
+        <label class="film-details__comment-label">
+          <textarea class="film-details__comment-input" placeholder="Select reaction below and write comment here" name="comment" ${isDisabled ? 'disabled' : ''}>${film.commentText ? `${he.encode(film.commentText)}` : ''}</textarea>
+        </label>
+        <div class="film-details__emoji-list">
+          ${EMOTIONS.map((el) => (`<input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-${el}" value="${el}" ${isDisabled ? 'disabled' : ''}>
+              <label class="film-details__emoji-label" for="emoji-${el}">
+                <img src="./images/emoji/${el}.png" width="30" height="30" alt="emoji-${el}">
+              </label>`)).join('')}
+        </div>
     </div>
   </section>
 </div>
@@ -124,29 +110,69 @@ const createFilmDetailsTemplate = (film) => {
 };
 
 export default class FilmDetailsView extends AbstractStatefulView {
+  _scrollTop = 0;
 
-  constructor (film) {
+  constructor (film, comments) {
     super();
     this._state = FilmDetailsView.parseFilmToState(film);
+    this._comments = comments;
     this.#setInnerHandlers();
   }
 
   get template() {
-    return createFilmDetailsTemplate(this._state);
+    return createFilmDetailsTemplate(this._state, this._comments);
   }
 
-  setFormSubmitHandler = (callback) => {
-    this._callback.formSubmit = callback;
-    this.element.addEventListener('keydown', this.#formSubmitHandler);
+  get controls() {
+    return this.element.querySelector('.film-details__controls');
+  }
+
+  _setStateComments = (updateComments, update) => {
+    this._comments = updateComments;
+    this._state = {...this._state, ...update};
   };
 
-  setDeleteClickHandler = (callback) => {
-    this._callback.deleteClick = callback;
+  _restoreHandlers = () => {
+    this.#setInnerHandlers();
+    this.setCloseClickHandler(this._callback.closeClick);
+    this.setWatchlistPopupClickHandler(this._callback.watchlistPopupClick);
+    this.setWatchedPopupClickHandler(this._callback.watchedPopupClick);
+    this.setFavoritePopupClickHandler(this._callback.favoritePopupClick);
+    this.setAddSubmitHandler(this._callback.addSubmit);
+    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.element.scrollTop = this._scrollTop;
+  };
 
-    const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
-    deleteButtons.forEach((button) => {
-      button.addEventListener('click', this.#commentDeleteClickHandler);
+  shakeControls(callback) {
+    this.controls.classList.add(SHAKE_CLASS_NAME);
+    setTimeout(() => {
+      this.controls.classList.remove(SHAKE_CLASS_NAME);
+      callback?.();
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  shakeCommentDelete(callback, block) {
+    block.classList.add(SHAKE_CLASS_NAME);
+    setTimeout(() => {
+      block.classList.remove(SHAKE_CLASS_NAME);
+      callback?.();
+    }, SHAKE_ANIMATION_TIMEOUT);
+  }
+
+  resetFormState = () => {
+    this.updateElement({
+      isDisabled: false,
     });
+  };
+
+  updateElementByComments = (updateComments, update) => {
+    if (!updateComments) {
+      return;
+    }
+
+    this._setStateComments(updateComments, update);
+
+    this.#rerenderElementByComments();
   };
 
   setCloseClickHandler = (callback) => {
@@ -169,57 +195,85 @@ export default class FilmDetailsView extends AbstractStatefulView {
     this.element.querySelector('.film-details__control-button--favorite').addEventListener('click', this.#favoritePopupClickHandler);
   };
 
+  setAddSubmitHandler = (callback) => {
+    this._callback.addSubmit = callback;
+    this.element.addEventListener('keydown', this.#commentAddSubmitHandler);
+  };
+
+  setDeleteClickHandler = (callback) => {
+    this._callback.deleteClick = callback;
+
+    const deleteButtons = this.element.querySelectorAll('.film-details__comment-delete');
+    deleteButtons.forEach((button) => {
+      button.addEventListener('click', this.#commentDeleteClickHandler);
+    });
+  };
+
+  #rerenderElementByComments = () => {
+    const prevElement = this.element;
+    const parent = prevElement.parentElement;
+    this.removeElement();
+    this._setState({
+      commentText: '',
+      commentEmotion: '',
+    });
+    const newElement = this.element;
+    parent.replaceChild(newElement, prevElement);
+
+    this._restoreHandlers();
+  };
+
   #closeClickHandler = () => {
     this._callback.closeClick();
   };
 
   #watchlistPopupClickHandler = () => {
-    this._callback.watchlistPopupClick();
+    this._scrollTop = this.element.scrollTop;
+    this._callback.watchlistPopupClick(this._state);
   };
 
   #watchedPopupClickHandler = () => {
-    this._callback.watchedPopupClick();
+    this._scrollTop = this.element.scrollTop;
+    this._callback.watchedPopupClick(this._state);
   };
 
   #favoritePopupClickHandler = () => {
-    this._callback.favoritePopupClick();
-  };
-
-  _restoreHandlers = () => {
-    this.#setInnerHandlers();
-    this.setCloseClickHandler(this._callback.closeClick);
-    this.setWatchlistPopupClickHandler(this._callback.watchlistPopupClick);
-    this.setWatchedPopupClickHandler(this._callback.watchedPopupClick);
-    this.setFavoritePopupClickHandler(this._callback.favoritePopupClick);
-    this.setFormSubmitHandler(this._callback.formSubmit);
-    this.setDeleteClickHandler(this._callback.deleteClick);
+    this._scrollTop = this.element.scrollTop;
+    this._callback.favoritePopupClick(this._state);
   };
 
   #emotionChangeHandler = (evt) => {
-    const scroll = this.element.scrollTop;
+    this._scrollTop = this.element.scrollTop;
     this.updateElement({
       commentEmotion: evt.target.value,
-    },);
-    this.element.scrollTo(0, scroll);
+    });
   };
 
   #commentInputHandler = (evt) => {
     evt.preventDefault();
+    this._scrollTop = this.element.scrollTop;
     this._setState({
       commentText: evt.target.value,
     });
   };
 
-  #formSubmitHandler = (evt) => {
-    if (evt.ctrlKey && evt.key === 'Enter') {
-      this._callback.formSubmit(FilmDetailsView.parseStateToFilm(this._state), FilmDetailsView.newComment(this._state));
+  #commentAddSubmitHandler = (evt) => {
+    if ((evt.metaKey || evt.ctrlKey) && evt.key === 'Enter') {
+      this._scrollTop = this.element.scrollTop;
+      this._setState({
+        isDisabled: true,
+      });
+      this._callback.addSubmit(FilmDetailsView.parseStateToFilm(this._state), FilmDetailsView.newComment(this._state));
     }
   };
 
   #commentDeleteClickHandler = (evt) => {
     evt.preventDefault();
     const idDelete = evt.target.dataset.buttonDelete;
-    this._callback.deleteClick(FilmDetailsView.parseStateToFilm(this._state), this._state.comments, idDelete);
+    const target = evt.target;
+    this._scrollTop = this.element.scrollTop;
+
+    this._callback.deleteClick(FilmDetailsView.parseStateToFilm(this._state), idDelete, target, this._comments);
   };
 
   #setInnerHandlers = () => {
@@ -231,6 +285,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
     {...film,
       commentText: '',
       commentEmotion: '',
+      isDisabled: false,
     }
   );
 
@@ -241,15 +296,13 @@ export default class FilmDetailsView extends AbstractStatefulView {
 
     delete film.commentText;
     delete film.commentEmotion;
+    delete film.isDisabled;
 
     return film;
   };
 
   static newComment = (state) => ({
-    id: nanoid(),
-    author: 'Username',
-    comment: he.encode(state.commentText),
-    date: dayjs().format('YYYY/MM/DD HH:mm'),
+    comment: state.commentText,
     emotion: state.commentEmotion,
   });
 }

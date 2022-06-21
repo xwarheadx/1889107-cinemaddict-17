@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import AbstractView from '../framework/view/abstract-view.js';
+import {SHAKE_CLASS_NAME, SHAKE_ANIMATION_TIMEOUT} from '../consts.js';
 import {formatDescription} from '../utils.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 
 dayjs.extend(duration);
 
@@ -19,13 +20,13 @@ const createFilmCardTemplate = (film) => (`<article class="film-card">
       <span class="film-card__comments">${film.comments.length} comments</span>
   </a>
   <div class="film-card__controls">
-  <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${film.userDetails.watchlist ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
-    <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${film.userDetails.alreadyWatched ? 'film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
-    <button class="film-card__controls-item film-card__controls-item--favorite ${film.userDetails.favorite ? 'film-card__controls-item--active' : ''}" type="button">Mark as favorite</button>
-  </div>
+  <button class="film-card__controls-item film-card__controls-item--add-to-watchlist ${film.watchlist ? 'film-card__controls-item--active' : ''}" type="button">Add to watchlist</button>
+  <button class="film-card__controls-item film-card__controls-item--mark-as-watched ${film.watched ? 'film-card__controls-item--active' : ''}" type="button">Mark as watched</button>
+  <button class="film-card__controls-item film-card__controls-item--favorite ${film.favorite ? 'film-card__controls-item--active' : ''}" type="button">Mark as favorite</button>
+</div>
 </article>`);
 
-export default class FilmCardView extends AbstractView {
+export default class FilmCardView extends AbstractStatefulView {
   #film = null;
 
   constructor (film) {
@@ -35,6 +36,25 @@ export default class FilmCardView extends AbstractView {
 
   get template() {
     return createFilmCardTemplate(this.#film);
+  }
+
+  get controls() {
+    return this.element.querySelector('.film-card__controls');
+  }
+
+  _restoreHandlers = () => {
+    this.setOpenClickHandler(this._callback.openClick);
+    this.setWatchlistClickHandler(this._callback.watchlistClick);
+    this.setWatchedClickHandler(this._callback.watchedClick);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+  };
+
+  shakeControls(callback) {
+    this.controls.classList.add(SHAKE_CLASS_NAME);
+    setTimeout(() => {
+      this.controls.classList.remove(SHAKE_CLASS_NAME);
+      callback?.();
+    }, SHAKE_ANIMATION_TIMEOUT);
   }
 
   setOpenClickHandler = (callback) => {

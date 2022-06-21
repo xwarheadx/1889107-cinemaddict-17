@@ -1,5 +1,5 @@
-import AbstractView from '../framework/view/abstract-view.js';
 import {SortType} from '../consts.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 const createSortTemplate = (currentSortType) => (
   `<ul class="sort">
@@ -26,8 +26,6 @@ export default class SortView extends AbstractView {
     this._callback.sortTypeChange = callback;
     this.element.addEventListener('click', this.#sortTypeChangeHandler);
   };
-
-  #disableButtons = (buttons) => buttons.forEach((button) => button.classList.remove('sort__button--active'));
 
   #sortTypeChangeHandler = (evt) => {
     if (evt.target.tagName !== 'A') {
