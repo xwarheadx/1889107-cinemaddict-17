@@ -9,7 +9,7 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import StatisticsView from './view/statistics-view.js';
 
 
-const AUTHORIZATION = 'Basic iddqd1315idkfa';
+const AUTHORIZATION = 'Basic iddqd1315idkfa1';
 const END_POINT = 'https://17.ecmascript.pages.academy/cinemaddict';
 
 const siteBodyElement = document.querySelector('body');

@@ -265,6 +265,7 @@ export default class FilmDetailsView extends AbstractStatefulView {
       this._setState({
         isDisabled: true,
       });
+      this.element.removeEventListener('keydown', this.#commentAddSubmitHandler);
       this._callback.addSubmit(FilmDetailsView.parseStateToFilm(this._state), FilmDetailsView.newComment(this._state));
     }
   };
